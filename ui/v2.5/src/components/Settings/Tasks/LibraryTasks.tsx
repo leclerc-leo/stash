@@ -155,7 +155,10 @@ export const LibraryTasks: React.FC = () => {
     }
 
     if (taskDefaults?.generate) {
-      setGenerateOptions(taskDefaults.generate);
+        setGenerateOptions((existing) => ({
+            ...taskDefaults.generate,
+            previewOptions: { ...existing.previewOptions },
+        }));
     }
 
     // combine the defaults with the system preview generation settings

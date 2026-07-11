@@ -384,7 +384,7 @@ const GroupPage: React.FC<IProps> = PatchComponent(
 
         <div className={headerClassName}>
           <BackgroundImage
-            imagePath={group.front_image_path ?? undefined}
+            imagePath={group.back_image_path ?? undefined}
             show={enableBackgroundImage && !isEditing}
           />
           <div className="detail-container">
