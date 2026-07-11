@@ -25,6 +25,7 @@ fragment SlimImageData on Image {
     folder {
       path
     }
+    rating100
   }
 
   studio {
