@@ -416,6 +416,10 @@ const sanitiseURL = (url?: string, siteURL?: URL) => {
     return url;
   }
 
+  if (url.startsWith("sftp://") || url.startsWith("ftp://")) {
+    return url;
+  }
+
   if (siteURL) {
     // if url starts with the site host, then prepend the protocol
     if (url.startsWith(siteURL.host)) {
