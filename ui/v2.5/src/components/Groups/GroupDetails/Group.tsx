@@ -337,6 +337,36 @@ const GroupPage: React.FC<IProps> = ({ group, tabKey }) => {
     "full-width": !collapsed && !compactExpandedDetails,
   });
 
+  async function onClickExternalLink(url: string) {
+    if (url.startsWith("sftp:") || url.startsWith("ftp:")) {
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    if (group.date === today) {
+      return;
+    }
+
+    try {
+      await updateGroup({
+        variables: {
+          input: {
+            id: group.id,
+            date: today,
+          },
+        },
+      });
+      Toast.success(
+        intl.formatMessage(
+          { id: "toast.updated_entity" },
+          { entity: intl.formatMessage({ id: "group" }).toLocaleLowerCase() }
+        )
+      );
+    } catch (e) {
+      Toast.error(e);
+    }
+  }
+
   return (
     <div id="group-page" className="row">
       <Helmet>
@@ -396,7 +426,7 @@ const GroupPage: React.FC<IProps> = ({ group, tabKey }) => {
                   />
                 )}
                 <span className="name-icons">
-                  <ExternalLinkButtons urls={group.urls ?? undefined} />
+                  <ExternalLinkButtons urls={group.urls ?? undefined} onClick={onClickExternalLink} />
                 </span>
               </DetailTitle>
 
