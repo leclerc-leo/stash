@@ -85,7 +85,7 @@ export const SceneGroupTable: React.FC<IProps> = (props) => {
       <>
         {value.map((m, i) => (
           <Row key={m.group.id} className="group-row">
-            <Col xs={9}>
+            <Col xs={12}>
               <GroupSelect
                 onSelect={(items) => onGroupSet(i, items)}
                 values={[m.group!]}
@@ -124,7 +124,7 @@ export const SceneGroupTable: React.FC<IProps> = (props) => {
   return (
     <div className={cx("group-table", { "no-groups": !value.length })}>
       <Row className="group-table-header">
-        <Col xs={9}></Col>
+        <Col xs={12}></Col>
         <Form.Label column xs={3} className="group-scene-number-header">
           {intl.formatMessage({ id: "group_scene_number" })}
         </Form.Label>

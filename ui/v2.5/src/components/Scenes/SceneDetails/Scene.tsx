@@ -40,6 +40,8 @@ import {
   faEllipsisV,
   faChevronRight,
   faChevronLeft,
+  faStepBackward,
+  faStepForward,
 } from "@fortawesome/free-solid-svg-icons";
 import { objectPath, objectTitle } from "src/core/files";
 import { RatingSystem } from "src/components/Shared/Rating/RatingSystem";
@@ -663,6 +665,8 @@ const ScenePage: React.FC<IProps> = PatchComponent("ScenePage", (props) => {
     [scene]
   );
 
+  const currentIndex = queueScenes.findIndex((s) => s.id === scene.id);
+
   return (
     <>
       <Helmet>
@@ -696,6 +700,30 @@ const ScenePage: React.FC<IProps> = PatchComponent("ScenePage", (props) => {
           </div>
 
           <div className="scene-toolbar">
+            <span className="scene-toolbar-group">
+              {currentIndex > 0 || queueStart > 1 ? (
+                <Button
+                  className="minimal"
+                  variant="secondary"
+                  onClick={() => onQueuePrevious()}
+                >
+                  <Icon icon={faStepBackward} />
+                </Button>
+              ) : (
+                ""
+              )}
+              {currentIndex < queueScenes.length - 1 || queueHasMoreScenes ? (
+                <Button
+                  className="minimal"
+                  variant="secondary"
+                  onClick={() => onQueueNext()}
+                >
+                  <Icon icon={faStepForward} />
+                </Button>
+              ) : (
+                ""
+              )}
+            </span>
             <span className="scene-toolbar-group">
               <RatingSystem
                 value={scene.rating100}
