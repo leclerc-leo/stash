@@ -901,7 +901,7 @@ export const LightboxComponent: React.FC<IProps> = ({
           {allowNavigation && (
             <Button
               variant="link"
-              onClick={handleLeft}
+              onClick={handleRight}
               className={`${CLASSNAME_NAVBUTTON} d-none d-lg-block`}
             >
               <Icon icon={faChevronLeft} />
@@ -934,8 +934,8 @@ export const LightboxComponent: React.FC<IProps> = ({
                     alignBottom={movingLeft}
                     setZoom={updateZoom}
                     debouncedScrollReset={debouncedScrollReset}
-                    onLeft={handleLeft}
-                    onRight={handleRight}
+                    onLeft={handleRight}
+                    onRight={handleLeft}
                     isVideo={isVideo(image.visual_files?.[0] ?? {})}
                   />
                 ) : undefined}
@@ -946,7 +946,7 @@ export const LightboxComponent: React.FC<IProps> = ({
           {allowNavigation && (
             <Button
               variant="link"
-              onClick={handleRight}
+              onClick={handleLeft}
               className={`${CLASSNAME_NAVBUTTON} d-none d-lg-block`}
             >
               <Icon icon={faChevronRight} />
