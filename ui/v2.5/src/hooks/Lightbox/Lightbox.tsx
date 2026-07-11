@@ -27,6 +27,7 @@ import {
   mutateImageDecrementO,
   mutateImageResetO,
   useImageUpdate,
+  useGalleryUpdate,
 } from "src/core/StashService";
 import * as GQL from "src/core/generated-graphql";
 import { useInterfaceLocalForage } from "../LocalForage";
@@ -120,6 +121,7 @@ export const LightboxComponent: React.FC<IProps> = ({
   onDeleteImage,
 }) => {
   const [updateImage] = useImageUpdate();
+  const [updateGallery] = useGalleryUpdate();
 
   // Filter out images with "Media Context: hidden" tag
   const visibleImages = useMemo(() => {
@@ -871,6 +873,18 @@ export const LightboxComponent: React.FC<IProps> = ({
     const title = currentImage ? imageTitle(currentImage) : undefined;
 
     function setRating(v: number | null) {
+      const galleryId = currentImage?.galleries?.[0]?.id;
+      if (galleryId) {
+        updateGallery({
+          variables: {
+            input: {
+              id: galleryId,
+              rating100: v,
+            },
+          },
+        });
+      }
+      else
       if (currentImage?.id) {
         updateImage({
           variables: {
@@ -1094,7 +1108,7 @@ export const LightboxComponent: React.FC<IProps> = ({
                   />
                 </div>
                 <RatingSystem
-                  value={currentImage?.rating100}
+                  value={currentImage?.galleries?.[0]?.rating100 ?? currentImage?.rating100}
                   onSetRating={(v) => setRating(v)}
                   clickToRate
                   withoutContext

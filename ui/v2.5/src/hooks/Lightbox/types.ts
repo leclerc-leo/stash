@@ -21,6 +21,7 @@ interface IWithPath {
 export interface IGallery {
   id: string;
   title?: GQL.Maybe<string>;
+  rating100?: GQL.Maybe<number>;
   files?: GQL.Maybe<IWithPath[]>;
   folder?: GQL.Maybe<IWithPath>;
 }
