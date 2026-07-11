@@ -149,7 +149,7 @@ export const GroupCard: React.FC<IProps> = PatchComponent(
 
     return (
       <GridCard
-        className={`group-card zoom-${zoomIndex}`}
+        className={`group-card zoom-${zoomIndex}` + (group.synopsis.toLowerCase().includes("**update**") ? " update" : "") + (group.synopsis.toLowerCase().includes("**dead**") ? " dead" : "")}
         objectId={group.id}
         onMove={onMove}
         url={`/groups/${group.id}`}
