@@ -8,6 +8,7 @@ import { PerformerCard } from "src/components/Performers/PerformerCard";
 import { sortPerformers } from "src/core/performers";
 import { DirectorLink } from "src/components/Shared/Link";
 import { CustomFields } from "src/components/Shared/CustomFields";
+import { GroupCard } from "src/components/Groups/GroupCard";
 
 interface ISceneDetailProps {
   scene: GQL.SceneDataFragment;
@@ -42,6 +43,29 @@ export const SceneDetailPanel: React.FC<ISceneDetailProps> = (props) => {
           />
         </h6>
         {tags}
+      </>
+    );
+  }
+
+  function renderGroups() {
+    if (!props.scene.groups || props.scene.groups.length === 0) return;
+    
+    const cards = props.scene.groups.map((sceneGroup) => (
+      <GroupCard
+        key={sceneGroup.group.id}
+        group={sceneGroup.group}
+        sceneNumber={sceneGroup.scene_index ?? undefined}
+      />
+    ));
+
+    return (
+      <>
+        <h6>
+          <FormattedMessage id="groups" />
+        </h6>
+        <div className="row justify-content-center scene-groups">
+          {cards}
+        </div>
       </>
     );
   }
@@ -118,6 +142,7 @@ export const SceneDetailPanel: React.FC<ISceneDetailProps> = (props) => {
         <div className="col-12">
           {renderDetails()}
           {renderTags()}
+          {renderGroups()}
           {renderPerformers()}
           <CustomFields values={props.scene.custom_fields} fullWidth />
         </div>
