@@ -43,4 +43,8 @@ fragment SelectPerformerData on Performer {
   image_path
   birthdate
   death_date
+  tags {
+    id
+    name
+  }
 }

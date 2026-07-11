@@ -51,6 +51,7 @@ export type Performer = Pick<
   | "image_path"
   | "birthdate"
   | "death_date"
+  | "tags"
 >;
 type Option = SelectOption<Performer>;
 

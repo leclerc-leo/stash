@@ -117,7 +117,7 @@ export const GalleryEditPanel: React.FC<IProps> = ({
     onSubmit: submit,
   });
 
-  const { tags, updateTagsStateFromScraper, tagsControl } = useTagsEdit(
+  const { tags, onSetTags, updateTagsStateFromScraper, tagsControl } = useTagsEdit(
     gallery.tags,
     (ids) => formik.setFieldValue("tag_ids", ids)
   );
@@ -136,6 +136,18 @@ export const GalleryEditPanel: React.FC<IProps> = ({
       "performer_ids",
       items.map((item) => item.id)
     );
+
+    const newTags = [...tags];
+    let tagsChanged = false;
+    items.forEach((p) => {
+      p.tags?.forEach((t) => {
+        if (!newTags.some((existing) => existing.id === t.id)) {
+          newTags.push(t as any);
+          tagsChanged = true;
+        }
+      });
+    });
+    if (tagsChanged) onSetTags(newTags);
   }
 
   function onSetStudio(item: Studio | null) {

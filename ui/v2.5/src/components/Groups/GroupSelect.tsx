@@ -32,7 +32,7 @@ import { TruncatedText } from "../Shared/TruncatedText";
 
 export type Group = Pick<
   GQL.Group,
-  "id" | "name" | "date" | "front_image_path" | "aliases"
+  "id" | "name" | "date" | "front_image_path" | "aliases" | "tags"
 > & {
   studio?: Pick<GQL.Studio, "name"> | null;
 };

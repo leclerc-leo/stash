@@ -14,4 +14,8 @@ fragment SelectGroupData on Group {
     name
   }
   front_image_path
+  tags {
+    id
+    name
+  }
 }
