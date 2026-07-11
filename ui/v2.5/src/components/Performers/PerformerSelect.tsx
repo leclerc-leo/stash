@@ -52,7 +52,9 @@ export type Performer = Pick<
   | "image_path"
   | "birthdate"
   | "death_date"
->;
+> & {
+  tags?: Pick<GQL.Tag, "id" | "name">[] | null;
+};
 type Option = SelectOption<Performer>;
 
 type FindPerformersResult = Awaited<

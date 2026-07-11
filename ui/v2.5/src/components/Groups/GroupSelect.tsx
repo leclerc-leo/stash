@@ -35,6 +35,7 @@ export type Group = Pick<
   "id" | "name" | "date" | "front_image_path" | "aliases"
 > & {
   studio?: Pick<GQL.Studio, "name"> | null;
+  tags?: Pick<GQL.Tag, "id" | "name">[] | null;
 };
 type Option = SelectOption<Group>;
 

@@ -43,7 +43,7 @@ import {
   renderScrapedGenderRow,
   renderScrapedCircumcisedRow,
 } from "./PerformerDetails/PerformerScrapeDialog";
-import { PerformerSelect } from "./PerformerSelect";
+import { Performer, PerformerSelect } from "./PerformerSelect";
 import { uniq } from "lodash-es";
 import { StashIDsField } from "../Shared/StashID";
 import { PatchComponent } from "src/patch";
@@ -731,12 +731,8 @@ interface IPerformerMergeModalProps {
 
 export const PerformerMergeModal: React.FC<IPerformerMergeModalProps> =
   PatchComponent("PerformerMergeModal", ({ show, onClose, performers }) => {
-    const [sourcePerformers, setSourcePerformers] = useState<
-      GQL.SelectPerformerDataFragment[]
-    >([]);
-    const [destPerformer, setDestPerformer] = useState<
-      GQL.SelectPerformerDataFragment[]
-    >([]);
+    const [sourcePerformers, setSourcePerformers] = useState<Performer[]>([]);
+    const [destPerformer, setDestPerformer] = useState<Performer[]>([]);
 
     const [loadedSources, setLoadedSources] = useState<
       GQL.PerformerDataFragment[]
