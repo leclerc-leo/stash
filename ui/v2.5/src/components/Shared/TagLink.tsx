@@ -277,6 +277,16 @@ export const TagLink: React.FC<ITagLinkProps> = PatchComponent(
 
     const title = tag.name || "";
 
+    let displayTitle = title;
+    let namespaceClass = "";
+
+    const colonIndex = title.indexOf(": ");
+    if (colonIndex > 0) {
+      const prefix = title.substring(0, colonIndex);
+      displayTitle = title.substring(colonIndex + 2);
+      namespaceClass = `tag-${prefix.toLowerCase().replace(/\s+/g, "-")}`;
+    }
+
     const tooltip = useMemo(() => {
       if (!hierarchyTooltipID) {
         return <></>;
@@ -293,10 +303,10 @@ export const TagLink: React.FC<ITagLinkProps> = PatchComponent(
       <SortNameLinkComponent
         sortName={tag.sort_name || title}
         link={link}
-        className={className}
+        className={cx(className, namespaceClass)}
       >
         <TagPopover id={tag.id ?? ""} placement={hoverPlacement}>
-          {title}
+          {displayTitle}
           {showHierarchyIcon && (
             <OverlayTrigger placement="top" overlay={tooltip}>
               <span className="icon-wrapper">

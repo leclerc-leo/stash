@@ -84,6 +84,18 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
     return !exclude.includes(tag.id.toString());
   }
 
+  function parseTagNamespace(title: string) {
+    let displayTitle = title;
+    let namespaceClass = "";
+    const colonIndex = title.indexOf(": ");
+    if (colonIndex > 0) {
+      const prefix = title.substring(0, colonIndex);
+      displayTitle = title.substring(colonIndex + 2);
+      namespaceClass = `tag-${prefix.toLowerCase().replace(/\s+/g, "-")}`;
+    }
+    return { displayTitle, namespaceClass };
+  }
+
   async function loadTags(input: string): Promise<Option[]> {
     const filter = new ListFilterModel(GQL.FilterMode.Tags);
     filter.currentPage = 1;
@@ -170,6 +182,7 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
     let thisOptionProps = optionProps;
 
     const { object } = optionProps.data;
+    const { displayTitle, namespaceClass } = parseTagNamespace(object.name || "");
 
     thisOptionProps = {
       ...optionProps,
@@ -178,7 +191,7 @@ const _TagSelect: React.FC<TagSelectProps> = (props) => {
           id={object.id}
           placement={props.hoverPlacementLabel ?? "top"}
         >
-          <span>{object.name}</span>
+          <span className={namespaceClass}>{displayTitle}</span>
         </TagPopover>
       ),
     };
