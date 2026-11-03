@@ -85,7 +85,7 @@ export const ExternalLinkButtons: React.FC<{ urls: string[] | undefined, onClick
         u.match(/https?:\/\/(?:www\.)?patreon.com\//)
       );
       const fanbox = urls.filter((u) =>
-        u.match(/https?:\/\/(?:www\.)?[^\/]+\.fanbox\.cc\/posts\//)
+        u.match(/https?:\/\/(?:www\.)?[^\/]+\.fanbox\.cc\/?(?:posts\/)?/)
       );
       const pawchive = urls.filter((u) =>
         u.match(/https?:\/\/(?:www\.)?pawchive\./)
