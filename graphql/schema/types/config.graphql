@@ -143,6 +143,14 @@ input ConfigGeneralInput {
   """
   liveTranscodeOutputArgs: [String!]
 
+  """
+  ffmpeg screenshot input args - injected before input file
+  These are applied to single-frame grabs (sprites, covers, marker screenshots and phashes)
+  """
+  screenshotInputArgs: [String!]
+  "Longer video side, in pixels, below which the screenshot input args are not used. 0 uses them for every video"
+  screenshotInputArgsMinSize: Int
+
   "whether to include range in generated funscript heatmaps"
   drawFunscriptHeatmapRange: Boolean
 
@@ -284,6 +292,14 @@ type ConfigGeneralResult {
   These are applied when live transcoding
   """
   liveTranscodeOutputArgs: [String!]!
+
+  """
+  ffmpeg screenshot input args - injected before input file
+  These are applied to single-frame grabs (sprites, covers, marker screenshots and phashes)
+  """
+  screenshotInputArgs: [String!]!
+  "Longer video side, in pixels, below which the screenshot input args are not used. 0 uses them for every video"
+  screenshotInputArgsMinSize: Int!
 
   "whether to include range in generated funscript heatmaps"
   drawFunscriptHeatmapRange: Boolean!

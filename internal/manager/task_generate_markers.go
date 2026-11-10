@@ -145,7 +145,7 @@ func (t *GenerateMarkersTask) generateMarker(videoFile *models.VideoFile, scene 
 	}
 
 	if t.Screenshot {
-		if err := g.SceneMarkerScreenshot(context.TODO(), videoFile.Path, sceneHash, seconds, videoFile.Width); err != nil {
+		if err := g.SceneMarkerScreenshot(context.TODO(), videoFile.Path, sceneHash, seconds, videoFile.Width, instance.Config.GetScreenshotInputArgsFor(videoFile.Width, videoFile.Height)); err != nil {
 			logger.Errorf("[generator] failed to generate marker screenshot for scene (%d) marker (%d) at %s: %v", scene.ID, sceneMarker.ID, formatSeconds(float64(sceneMarker.Seconds)), err)
 			logErrorOutput(err)
 		}

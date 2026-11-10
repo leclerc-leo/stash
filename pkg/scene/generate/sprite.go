@@ -19,13 +19,15 @@ import (
 	"github.com/stashapp/stash/pkg/utils"
 )
 
-func (g Generator) SpriteScreenshot(ctx context.Context, input string, seconds float64, size int, isPortrait bool) (image.Image, error) {
+// SpriteScreenshot fails without retrying when inputArgs is set: the caller retries without them.
+func (g Generator) SpriteScreenshot(ctx context.Context, input string, seconds float64, size int, isPortrait bool, inputArgs []string) (image.Image, error) {
 	lockCtx := g.LockManager.ReadLock(ctx, input)
 	defer lockCtx.Cancel()
 
 	ssOptions := transcoder.ScreenshotOptions{
-		OutputPath: "-",
-		OutputType: transcoder.ScreenshotOutputTypeBMP,
+		OutputPath:     "-",
+		OutputType:     transcoder.ScreenshotOutputTypeBMP,
+		ExtraInputArgs: inputArgs,
 	}
 
 	if !isPortrait {
@@ -36,7 +38,7 @@ func (g Generator) SpriteScreenshot(ctx context.Context, input string, seconds f
 
 	args := transcoder.ScreenshotTime(input, seconds, ssOptions)
 	img, err := g.generateImage(lockCtx, args)
-	if err != nil {
+	if err != nil && len(inputArgs) == 0 {
 		logger.Warnf("[generator] fast sprite screenshot seek failed for %s at %.3fs, retrying with accurate seek: %v", input, seconds, err)
 
 		ssOptions.SlowSeek = true
@@ -44,7 +46,7 @@ func (g Generator) SpriteScreenshot(ctx context.Context, input string, seconds f
 		return g.generateImage(lockCtx, args)
 	}
 
-	return img, nil
+	return img, err
 }
 
 func (g Generator) SpriteScreenshotSlow(ctx context.Context, input string, frame int, width int) (image.Image, error) {

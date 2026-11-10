@@ -367,6 +367,23 @@ export const SettingsConfigurationPanel: React.FC = () => {
           onChange={(v) => saveGeneral({ liveTranscodeOutputArgs: v })}
           value={general.liveTranscodeOutputArgs ?? []}
         />
+
+        <StringListSetting
+          advanced
+          id="screenshot-input-args"
+          headingID="config.general.ffmpeg.screenshot.input_args.heading"
+          subHeadingID="config.general.ffmpeg.screenshot.input_args.desc"
+          onChange={(v) => saveGeneral({ screenshotInputArgs: v })}
+          value={general.screenshotInputArgs ?? []}
+        />
+        <NumberSetting
+          advanced
+          id="screenshot-input-args-min-size"
+          headingID="config.general.ffmpeg.screenshot.input_args_min_size.heading"
+          subHeadingID="config.general.ffmpeg.screenshot.input_args_min_size.desc"
+          value={general.screenshotInputArgsMinSize ?? undefined}
+          onChange={(v) => saveGeneral({ screenshotInputArgsMinSize: v })}
+        />
       </SettingSection>
 
       <SettingSection headingID="config.general.parallel_scan_head">

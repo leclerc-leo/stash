@@ -55,7 +55,7 @@ func printVideoPhash(ff *ffmpeg.FFMpeg, ffp *ffmpeg.FFProbe, inputfile string, q
 		Duration: ffvideoFile.FileDuration,
 	}
 
-	phash, err := videophash.Generate(ff, vf)
+	phash, err := videophash.Generate(ff, vf, nil)
 	if err != nil {
 		return err
 	}

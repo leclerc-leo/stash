@@ -19,6 +19,9 @@ const (
 
 type ScreenshotOptions struct {
 	At *float64
+
+	// InputArgs are tried first; on failure the screenshot is retried without them.
+	InputArgs []string
 }
 
 func (g Generator) Screenshot(ctx context.Context, input string, videoWidth int, videoDuration float64, options ScreenshotOptions) ([]byte, error) {
@@ -33,8 +36,9 @@ func (g Generator) Screenshot(ctx context.Context, input string, videoWidth int,
 	}
 
 	ret, err := g.generateBytes(lockCtx, g.ScenePaths, jpgPattern, g.screenshot(input, screenshotOptions{
-		Time:    at,
-		Quality: screenshotQuality,
+		Time:      at,
+		Quality:   screenshotQuality,
+		InputArgs: options.InputArgs,
 		// default Width is video width
 	}))
 	if err != nil {
@@ -45,21 +49,34 @@ func (g Generator) Screenshot(ctx context.Context, input string, videoWidth int,
 }
 
 type screenshotOptions struct {
-	Time    float64
-	Width   int
-	Quality int
+	Time      float64
+	Width     int
+	Quality   int
+	InputArgs []string
 }
 
 func (g Generator) screenshot(input string, options screenshotOptions) generateFn {
 	return func(lockCtx *fsutil.LockContext, tmpFn string) error {
 		ssOptions := transcoder.ScreenshotOptions{
-			OutputPath: tmpFn,
-			OutputType: transcoder.ScreenshotOutputTypeImage2,
-			Quality:    options.Quality,
-			Width:      options.Width,
+			OutputPath:     tmpFn,
+			OutputType:     transcoder.ScreenshotOutputTypeImage2,
+			Quality:        options.Quality,
+			Width:          options.Width,
+			ExtraInputArgs: options.InputArgs,
 		}
 
 		args := transcoder.ScreenshotTime(input, options.Time, ssOptions)
+		if len(ssOptions.ExtraInputArgs) > 0 {
+			err := g.generate(lockCtx, args)
+			if err == nil {
+				return nil
+			}
+			logger.Warnf("[generator] screenshot with screenshot input args failed for %s at %.3fs, retrying without them: %v", input, options.Time, err)
+
+			ssOptions.ExtraInputArgs = nil
+			args = transcoder.ScreenshotTime(input, options.Time, ssOptions)
+		}
+
 		if err := g.generate(lockCtx, args); err != nil {
 			logger.Warnf("[generator] fast screenshot seek failed for %s at %.3fs, retrying with accurate seek: %v", input, options.Time, err)
 

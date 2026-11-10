@@ -23,8 +23,10 @@ const (
 	rows           = 5
 )
 
-func Generate(encoder *ffmpeg.FFMpeg, videoFile *models.VideoFile) (*uint64, error) {
-	sprite, err := generateSprite(encoder, videoFile)
+// Generate computes the video's phash. inputArgs go before the input of each frame grab;
+// after a failure with them, the remaining grabs run without.
+func Generate(encoder *ffmpeg.FFMpeg, videoFile *models.VideoFile, inputArgs []string) (*uint64, error) {
+	sprite, err := generateSprite(encoder, videoFile, inputArgs)
 	if err != nil {
 		return nil, err
 	}
@@ -37,12 +39,13 @@ func Generate(encoder *ffmpeg.FFMpeg, videoFile *models.VideoFile) (*uint64, err
 	return &hashValue, nil
 }
 
-func generateSpriteScreenshot(encoder *ffmpeg.FFMpeg, input string, t float64, slowSeek bool) (image.Image, error) {
+func generateSpriteScreenshot(encoder *ffmpeg.FFMpeg, input string, t float64, slowSeek bool, inputArgs []string) (image.Image, error) {
 	options := transcoder.ScreenshotOptions{
-		Width:      screenshotSize,
-		OutputPath: "-",
-		OutputType: transcoder.ScreenshotOutputTypeBMP,
-		SlowSeek:   slowSeek,
+		Width:          screenshotSize,
+		OutputPath:     "-",
+		OutputType:     transcoder.ScreenshotOutputTypeBMP,
+		SlowSeek:       slowSeek,
+		ExtraInputArgs: inputArgs,
 	}
 
 	args := transcoder.ScreenshotTime(input, t, options)
@@ -77,7 +80,7 @@ func combineImages(images []image.Image) image.Image {
 	return montage
 }
 
-func generateSprite(encoder *ffmpeg.FFMpeg, videoFile *models.VideoFile) (image.Image, error) {
+func generateSprite(encoder *ffmpeg.FFMpeg, videoFile *models.VideoFile, inputArgs []string) (image.Image, error) {
 	logger.Infof("[generator] generating phash sprite for %s", videoFile.Path)
 
 	// Generate sprite image offset by 5% on each end to avoid intro/outros
@@ -90,12 +93,18 @@ func generateSprite(encoder *ffmpeg.FFMpeg, videoFile *models.VideoFile) (image.
 	for i := 0; i < chunkCount; i++ {
 		time := offset + (float64(i) * stepSize)
 
-		img, err := generateSpriteScreenshot(encoder, videoFile.Path, time, slowSeek)
+		img, err := generateSpriteScreenshot(encoder, videoFile.Path, time, slowSeek, inputArgs)
+		if err != nil && len(inputArgs) > 0 {
+			logger.Warnf("[generator] phash screenshot with screenshot input args failed for %s at %.3fs, using none for remaining phash screenshots: %v", videoFile.Path, time, err)
+
+			inputArgs = nil
+			img, err = generateSpriteScreenshot(encoder, videoFile.Path, time, slowSeek, inputArgs)
+		}
 		if err != nil && !slowSeek {
 			logger.Warnf("[generator] fast phash screenshot seek failed for %s at %.3fs, retrying with accurate seek for remaining phash screenshots: %v", videoFile.Path, time, err)
 
 			slowSeek = true
-			img, err = generateSpriteScreenshot(encoder, videoFile.Path, time, slowSeek)
+			img, err = generateSpriteScreenshot(encoder, videoFile.Path, time, slowSeek, inputArgs)
 		}
 		if err != nil {
 			return nil, fmt.Errorf("generating sprite screenshot: %w", err)

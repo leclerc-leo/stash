@@ -434,6 +434,10 @@ func (r *mutationResolver) ConfigureGeneral(ctx context.Context, input ConfigGen
 	if input.LiveTranscodeOutputArgs != nil {
 		c.SetInterface(config.LiveTranscodeOutputArgs, input.LiveTranscodeOutputArgs)
 	}
+	if input.ScreenshotInputArgs != nil {
+		c.SetInterface(config.ScreenshotInputArgs, input.ScreenshotInputArgs)
+	}
+	r.setConfigInt(config.ScreenshotInputArgsMinSize, input.ScreenshotInputArgsMinSize)
 
 	r.setConfigBool(config.DrawFunscriptHeatmapRange, input.DrawFunscriptHeatmapRange)
 

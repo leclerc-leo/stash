@@ -88,6 +88,10 @@ const (
 	LiveTranscodeInputArgs  = "ffmpeg.live_transcode.input_args"
 	LiveTranscodeOutputArgs = "ffmpeg.live_transcode.output_args"
 
+	// Input args for single-frame grabs: sprites, covers, marker screenshots, phash.
+	ScreenshotInputArgs        = "ffmpeg.screenshot.input_args"
+	ScreenshotInputArgsMinSize = "ffmpeg.screenshot.input_args_min_size"
+
 	ParallelTasks        = "parallel_tasks"
 	parallelTasksDefault = 1
 
@@ -1177,6 +1181,26 @@ func (i *Config) GetLiveTranscodeInputArgs() []string {
 
 func (i *Config) GetLiveTranscodeOutputArgs() []string {
 	return i.getStringSlice(LiveTranscodeOutputArgs)
+}
+
+func (i *Config) GetScreenshotInputArgs() []string {
+	return i.getStringSlice(ScreenshotInputArgs)
+}
+
+// GetScreenshotInputArgsMinSize returns the longer video side, in pixels, below which
+// the screenshot input args are not used. 0 uses them for every video.
+func (i *Config) GetScreenshotInputArgsMinSize() int {
+	return i.getInt(ScreenshotInputArgsMinSize)
+}
+
+// GetScreenshotInputArgsFor returns the screenshot input args for a video of this size,
+// or nil when its longer side is under the minimum: each frame grab is its own ffmpeg
+// run, so hardware decoder setup can cost more than it saves on small videos.
+func (i *Config) GetScreenshotInputArgsFor(width, height int) []string {
+	if max(width, height) < i.GetScreenshotInputArgsMinSize() {
+		return nil
+	}
+	return i.GetScreenshotInputArgs()
 }
 
 func (i *Config) GetDrawFunscriptHeatmapRange() bool {

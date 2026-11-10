@@ -108,6 +108,9 @@ func (g Generator) markerPreviewVideo(input string, options sceneMarkerOptions) 
 			OutputPath: tmpFn,
 			VideoCodec: ffmpeg.VideoCodecLibX264,
 			VideoArgs:  videoArgs,
+
+			ExtraInputArgs:  g.FFMpegConfig.GetTranscodeInputArgs(),
+			ExtraOutputArgs: g.FFMpegConfig.GetTranscodeOutputArgs(),
 		}
 
 		if options.Audio {
@@ -169,6 +172,9 @@ func (g Generator) sceneMarkerWebp(input string, options sceneMarkerOptions) gen
 			OutputPath: tmpFn,
 			VideoCodec: ffmpeg.VideoCodecLibWebP,
 			VideoArgs:  videoArgs,
+
+			// Not the output args: they target the video previews' encoder.
+			ExtraInputArgs: g.FFMpegConfig.GetTranscodeInputArgs(),
 		}
 
 		args := transcoder.Transcode(input, trimOptions)
@@ -177,7 +183,8 @@ func (g Generator) sceneMarkerWebp(input string, options sceneMarkerOptions) gen
 	}
 }
 
-func (g Generator) SceneMarkerScreenshot(ctx context.Context, input string, hash string, seconds float64, width int) error {
+// SceneMarkerScreenshot tries inputArgs first and retries without them on failure.
+func (g Generator) SceneMarkerScreenshot(ctx context.Context, input string, hash string, seconds float64, width int, inputArgs []string) error {
 	lockCtx := g.LockManager.ReadLock(ctx, input)
 	defer lockCtx.Cancel()
 
@@ -189,8 +196,9 @@ func (g Generator) SceneMarkerScreenshot(ctx context.Context, input string, hash
 	}
 
 	if err := g.generateFile(lockCtx, g.MarkerPaths, jpgPattern, output, g.sceneMarkerScreenshot(input, SceneMarkerScreenshotOptions{
-		Seconds: seconds,
-		Width:   width,
+		Seconds:   seconds,
+		Width:     width,
+		InputArgs: inputArgs,
 	})); err != nil {
 		return err
 	}
@@ -201,21 +209,31 @@ func (g Generator) SceneMarkerScreenshot(ctx context.Context, input string, hash
 }
 
 type SceneMarkerScreenshotOptions struct {
-	Seconds float64
-	Width   int
+	Seconds   float64
+	Width     int
+	InputArgs []string
 }
 
 func (g Generator) sceneMarkerScreenshot(input string, options SceneMarkerScreenshotOptions) generateFn {
 	return func(lockCtx *fsutil.LockContext, tmpFn string) error {
 		ssOptions := transcoder.ScreenshotOptions{
-			OutputPath: tmpFn,
-			OutputType: transcoder.ScreenshotOutputTypeImage2,
-			Quality:    markerScreenshotQuality,
-			Width:      options.Width,
+			OutputPath:     tmpFn,
+			OutputType:     transcoder.ScreenshotOutputTypeImage2,
+			Quality:        markerScreenshotQuality,
+			Width:          options.Width,
+			ExtraInputArgs: options.InputArgs,
 		}
 
 		args := transcoder.ScreenshotTime(input, options.Seconds, ssOptions)
+		err := g.generate(lockCtx, args)
+		if err != nil && len(ssOptions.ExtraInputArgs) > 0 {
+			logger.Warnf("[generator] marker screenshot with screenshot input args failed for %s at %.3fs, retrying without them: %v", input, options.Seconds, err)
 
-		return g.generate(lockCtx, args)
+			ssOptions.ExtraInputArgs = nil
+			args = transcoder.ScreenshotTime(input, options.Seconds, ssOptions)
+			err = g.generate(lockCtx, args)
+		}
+
+		return err
 	}
 }

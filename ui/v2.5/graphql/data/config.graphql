@@ -65,6 +65,8 @@ fragment ConfigGeneralData on ConfigGeneralResult {
   transcodeOutputArgs
   liveTranscodeInputArgs
   liveTranscodeOutputArgs
+  screenshotInputArgs
+  screenshotInputArgsMinSize
   drawFunscriptHeatmapRange
 
   scraperPackageSources {

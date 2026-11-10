@@ -65,7 +65,8 @@ func (t *GenerateCoverTask) Start(ctx context.Context) {
 	}
 
 	coverImageData, err := g.Screenshot(context.TODO(), videoFile.Path, videoFile.Width, videoFile.Duration, generate.ScreenshotOptions{
-		At: &at,
+		At:        &at,
+		InputArgs: instance.Config.GetScreenshotInputArgsFor(videoFile.Width, videoFile.Height),
 	})
 	if err != nil {
 		logger.Errorf("Error generating screenshot: %v", err)

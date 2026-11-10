@@ -392,6 +392,16 @@
             "heading": "FFmpeg live transcode output arguments"
           }
         },
+        "screenshot": {
+          "input_args": {
+            "desc": "Advanced: Additional arguments to pass to ffmpeg before the input field when grabbing single frames: sprites, covers, marker screenshots and phashes. With -hwaccel_output_format cuda, frames are scaled on the GPU. If a grab fails with these arguments, it is retried without them.",
+            "heading": "FFmpeg screenshot input arguments"
+          },
+          "input_args_min_size": {
+            "desc": "Only use the screenshot input arguments for videos whose longer side is at least this many pixels (3840 for 4K). 0 uses them for every video.",
+            "heading": "FFmpeg screenshot input arguments minimum size"
+          }
+        },
         "transcode": {
           "input_args": {
             "desc": "Advanced: Additional arguments to pass to ffmpeg before the input field when generating video.",

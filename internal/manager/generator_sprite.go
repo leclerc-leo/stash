@@ -206,10 +206,17 @@ func (g *SpriteGenerator) generateSpriteImage() error {
 		logger.Infof("[generator] generating sprite image for %s", g.Info.VideoFile.Path)
 		// generate `ChunkCount` thumbnails
 		stepSize := g.Info.VideoFile.VideoStreamDuration / float64(g.Info.ChunkCount)
+		inputArgs := instance.Config.GetScreenshotInputArgsFor(g.Info.VideoFile.Width, g.Info.VideoFile.Height)
 
 		for i := 0; i < g.Info.ChunkCount; i++ {
 			time := float64(i) * stepSize
-			img, err := g.g.SpriteScreenshot(context.TODO(), g.Info.VideoFile.Path, time, g.Config.SpriteSize, isPortrait)
+			img, err := g.g.SpriteScreenshot(context.TODO(), g.Info.VideoFile.Path, time, g.Config.SpriteSize, isPortrait, inputArgs)
+			if err != nil && len(inputArgs) > 0 {
+				logger.Warnf("[generator] sprite screenshot with screenshot input args failed for %s at %.3fs, using none for the rest of this file: %v", g.Info.VideoFile.Path, time, err)
+
+				inputArgs = nil
+				img, err = g.g.SpriteScreenshot(context.TODO(), g.Info.VideoFile.Path, time, g.Config.SpriteSize, isPortrait, inputArgs)
+			}
 			if err != nil {
 				return err
 			}
