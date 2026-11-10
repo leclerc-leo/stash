@@ -43,15 +43,33 @@ func hwOutputFormat(args []string) string {
 	return ""
 }
 
+// maxHalvedSize bounds the source side cudaScale halves down from.
+const maxHalvedSize = 16384
+
+// cudaScale scales on the GPU. scale_cuda reads a fixed footprint, so one pass shrinking
+// by more than 2x aliases: halve first (bilinear at 2x is a 2x2 average), then finish.
+// A halving step already at the target size passes frames through.
+func cudaScale(w, h int) ffmpeg.VideoFilter {
+	var vf ffmpeg.VideoFilter
+	if w <= 0 && h <= 0 {
+		return vf.Append("scale_cuda=format=yuv420p")
+	}
+
+	target, step := w, "w='max(trunc(iw/4)*2,%d)':h=-2"
+	if w <= 0 {
+		target, step = h, "w=-2:h='max(trunc(ih/4)*2,%d)'"
+	}
+	for size := target; size < maxHalvedSize; size *= 2 {
+		vf = vf.Append("scale_cuda=" + fmt.Sprintf(step, target) + ":interp_algo=bilinear")
+	}
+	return vf.Append(fmt.Sprintf("scale_cuda=w=%d:h=%d:format=yuv420p", w, h))
+}
+
 // screenshotScale scales to w x h (0 keeps the source size), on the GPU if the frames are on it.
 func screenshotScale(extraInputArgs []string, w, h int) ffmpeg.VideoFilter {
 	var vf ffmpeg.VideoFilter
 	if hwOutputFormat(extraInputArgs) == "cuda" {
-		size := ""
-		if w > 0 || h > 0 {
-			size = fmt.Sprintf("w=%d:h=%d:", w, h)
-		}
-		return vf.Append("scale_cuda=" + size + "format=yuv420p").Append("hwdownload").Append("format=yuv420p")
+		return cudaScale(w, h).Append("hwdownload").Append("format=yuv420p")
 	}
 	if w > 0 || h > 0 {
 		return vf.ScaleDimensions(w, h)

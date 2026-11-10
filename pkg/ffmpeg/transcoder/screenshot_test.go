@@ -85,8 +85,13 @@ func TestScreenshotTimeCudaFrames(t *testing.T) {
 		height int
 		want   string
 	}{
-		{"width", 160, 0, "scale_cuda=w=160:h=-2:format=yuv420p,hwdownload,format=yuv420p"},
-		{"height", 0, 240, "scale_cuda=w=-2:h=240:format=yuv420p,hwdownload,format=yuv420p"},
+		{"width", 2048, 0, "scale_cuda=w='max(trunc(iw/4)*2,2048)':h=-2:interp_algo=bilinear," +
+			"scale_cuda=w='max(trunc(iw/4)*2,2048)':h=-2:interp_algo=bilinear," +
+			"scale_cuda=w='max(trunc(iw/4)*2,2048)':h=-2:interp_algo=bilinear," +
+			"scale_cuda=w=2048:h=-2:format=yuv420p,hwdownload,format=yuv420p"},
+		{"height", 0, 4096, "scale_cuda=w=-2:h='max(trunc(ih/4)*2,4096)':interp_algo=bilinear," +
+			"scale_cuda=w=-2:h='max(trunc(ih/4)*2,4096)':interp_algo=bilinear," +
+			"scale_cuda=w=-2:h=4096:format=yuv420p,hwdownload,format=yuv420p"},
 		{"source size", 0, 0, "scale_cuda=format=yuv420p,hwdownload,format=yuv420p"},
 	}
 
